@@ -23,7 +23,7 @@ sh "${mavenHome}/bin/mvn clean deploy"
 
 stage('DeployAppIntoTomcatserver')
 sshagent(['544e922c-306b-4a79-9087-f501d6886220']) {
-sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.142.35.192/:/opt/apache-tomcat-9.0.82/webapps/"
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.142.35.192:/opt/apache-tomcat-9.0.82/webapps/"
 }
 stage('SendEmailNotification'){
 emailext body: '''Build is over!!
