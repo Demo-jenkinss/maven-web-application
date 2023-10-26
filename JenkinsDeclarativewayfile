@@ -1,0 +1,65 @@
+pipeline{
+
+agent any
+
+triggers{
+pollSCM('* * * * * ')
+}
+
+options{
+timestamps()
+buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
+}
+
+tools{
+maven "maven3.6.3"
+}
+
+stages{
+
+ stage('checkoutcode'){
+ steps{
+ git branch: 'development', credentialsId: '55695eff-0e75-4fb4-a59c-07cee13fed13',
+ url: 'https://github.com/Demo-jenkinss/maven-web-application.git'
+ }
+ }
+ stage('Build'){
+ steps{
+ sh "mvn clean package"
+ }
+ }
+ stage('ExecuteSonarQubeReport'){
+ steps{
+ sh "mvn clean sonar:sonar"
+ }
+ }
+ stage('UploadArtifactIntoNexus'){
+ steps{
+ sh "mvn clean deploy"
+ }
+ }
+ stage('DeployappIntoTomcatserver'){
+ steps{
+ sshagent(['6a141d01-37c6-4d65-b64e-369b920f3298']) {
+ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.142.35.192:/opt/apache-tomcat-9.0.82/webapps/"
+  }
+ }
+}
+ 
+} //stages closing
+post{
+ 
+ success{
+   emailext body: '''Build is over - Success !!
+
+   Regards,
+   Harikrishna.''', subject: 'Build is Over - Success', to: 'harikrishaseethapuram@gmail.com'
+ }
+ failure{
+   emailext body: '''Build is over - Failed !!
+
+   Regards,
+   Harikrishna.''', subject: 'Build is Over - Failed', to: 'harikrishaseethapuram@gmail.com'
+ }
+ }
+} //pipeline closing
