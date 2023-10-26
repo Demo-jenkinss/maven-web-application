@@ -1,6 +1,6 @@
 node {
 
-def mavenHome= tool name: "maven-3.6.3"
+def mavenHome= tool name: "maven3.6.3"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), 
 [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
 
@@ -22,8 +22,8 @@ sh "${mavenHome}/bin/mvn clean deploy"
 }
 
 stage('DeployAppIntoTomcatserver')
-sshagent(['a4b9d5df-87c0-4eeb-a7f9-a2ff9200bd2a']) {
-sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.6.40.109:/opt/tomcat-9.0.80/webapps/"
+sshagent(['544e922c-306b-4a79-9087-f501d6886220']) {
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@http://18.188.237.189/:/opt/apache-tomcat-9.0.82/webapps/"
 }
 stage('SendEmailNotification'){
 emailext body: '''Build is over!!
